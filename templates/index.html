@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Gerador de Curriculo</title>
+  <link rel="stylesheet" href="/static/style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Gerador de Curriculo Profissional</h1>
+    <p class="subtitulo">Preencha os campos abaixo. A IA organiza automaticamente as descricoes em topicos ao gerar o PDF.</p>
+
+    <!-- DADOS PESSOAIS -->
+    <section class="secao">
+      <h2>Dados Pessoais</h2>
+      <div class="grid-2">
+        <div class="campo">
+          <label>Nome completo *</label>
+          <input type="text" id="nome" placeholder="Ex: Maria da Silva" required />
+        </div>
+        <div class="campo">
+          <label>E-mail *</label>
+          <input type="email" id="email" placeholder="Ex: maria@email.com" required />
+        </div>
+        <div class="campo">
+          <label>Telefone</label>
+          <input type="text" id="telefone" placeholder="Ex: (11) 99999-9999" maxlength="15" />
+        </div>
+        <div class="campo">
+          <label>Cidade</label>
+          <input type="text" id="cidade" placeholder="Ex: Sao Paulo - SP" />
+        </div>
+        <div class="campo">
+          <label>LinkedIn</label>
+          <input type="text" id="linkedin" placeholder="Ex: linkedin.com/in/maria" />
+        </div>
+      </div>
+    </section>
+
+    <!-- OBJETIVO PROFISSIONAL -->
+    <section class="secao">
+      <h2>Objetivo Profissional</h2>
+      <div class="campo">
+        <textarea id="objetivo" rows="3" placeholder="Ex: Busco uma oportunidade como assistente administrativo para iniciar minha carreira..."></textarea>
+      </div>
+    </section>
+
+    <!-- FORMACAO ACADEMICA -->
+    <section class="secao">
+      <h2>Formacao Academica</h2>
+      <div id="lista-formacoes"></div>
+      <button class="btn-add" onclick="adicionarFormacao()">+ Adicionar Formacao</button>
+    </section>
+
+    <!-- EXPERIENCIA PROFISSIONAL -->
+    <section class="secao">
+      <h2>Experiencia Profissional</h2>
+      <div id="lista-experiencias"></div>
+      <button class="btn-add" onclick="adicionarExperiencia()">+ Adicionar Experiencia</button>
+    </section>
+
+    <!-- HABILIDADES -->
+    <section class="secao">
+      <h2>Habilidades e Competencias</h2>
+      <div class="campo">
+        <textarea id="habilidades" rows="2" placeholder="Ex: Ingles (intermediario), Power BI, Python, SQL, Excel (avancado)..."></textarea>
+      </div>
+    </section>
+
+    <!-- CERTIFICACOES -->
+    <section class="secao">
+      <h2>Certificacoes e Cursos</h2>
+      <div id="lista-certificacoes"></div>
+      <button class="btn-add" onclick="adicionarCertificacao()">+ Adicionar Certificacao</button>
+    </section>
+
+    <!-- ACOES -->
+    <div class="acoes">
+      <button class="btn-gerar" onclick="gerarPDF()">Gerar PDF</button>
+    </div>
+    <div id="msg-global" class="msg"></div>
+  </div>
+
+  <script>
+    let contExp = 0, contForm = 0, contCert = 0;
+
+    // ---- Formacao ----
+    function adicionarFormacao() {
+      const id = contForm++;
+      const div = document.createElement("div");
+      div.className = "entrada";
+      div.id = `form-${id}`;
+      div.innerHTML = `
+        <div class="entrada-header">
+          <strong>Formacao ${id + 1}</strong>
+          <button class="btn-remover" onclick="remover('form-${id}')">Remover</button>
+        </div>
+        <div class="grid-2">
+          <div class="campo">
+            <label>Instituicao</label>
+            <input type="text" data-form="${id}" data-campo="instituicao" placeholder="Ex: ETEC Sao Paulo" />
+          </div>
+          <div class="campo">
+            <label>Curso</label>
+            <input type="text" data-form="${id}" data-campo="curso" placeholder="Ex: Tecnico em Administracao" />
+          </div>
+          <div class="campo">
+            <label>Nivel</label>
+            <select data-form="${id}" data-campo="nivel">
+              <option value="">Selecione</option>
+              <option>Ensino Medio</option>
+              <option>Tecnico</option>
+              <option>Superior Incompleto</option>
+              <option>Superior Completo</option>
+              <option>Pos-Graduacao</option>
+            </select>
+          </div>
+          <div class="campo">
+            <label>Ano de conclusao</label>
+            <input type="text" data-form="${id}" data-campo="ano_conclusao" placeholder="Ex: Dez. 2023 ou Em andamento" />
+          </div>
+        </div>
+      `;
+      document.getElementById("lista-formacoes").appendChild(div);
+    }
+
+    // ---- Experiencia ----
+    function adicionarExperiencia() {
+      const id = contExp++;
+      const div = document.createElement("div");
+      div.className = "entrada";
+      div.id = `exp-${id}`;
+      div.innerHTML = `
+        <div class="entrada-header">
+          <strong>Experiencia ${id + 1}</strong>
+          <button class="btn-remover" onclick="remover('exp-${id}')">Remover</button>
+        </div>
+        <div class="grid-2">
+          <div class="campo">
+            <label>Empresa</label>
+            <input type="text" data-exp="${id}" data-campo="empresa" placeholder="Ex: Supermercado ABC" />
+          </div>
+          <div class="campo">
+            <label>Cargo</label>
+            <input type="text" data-exp="${id}" data-campo="cargo" placeholder="Ex: Atendente" />
+          </div>
+          <div class="campo">
+            <label>Inicio</label>
+            <input type="text" data-exp="${id}" data-campo="inicio" placeholder="Ex: Mar. 2023" />
+          </div>
+          <div class="campo">
+            <label>Fim</label>
+            <input type="text" data-exp="${id}" data-campo="fim" placeholder="Ex: Dez. 2023 ou Momento" />
+          </div>
+          <div class="campo">
+            <label>Cidade</label>
+            <input type="text" data-exp="${id}" data-campo="cidade" placeholder="Ex: Sao Paulo, SP" />
+          </div>
+        </div>
+        <div class="campo">
+          <label>Descricao das atividades</label>
+          <textarea data-exp="${id}" data-campo="descricao" rows="3"
+            placeholder="Descreva suas atividades. A IA vai organizar em topicos automaticamente."></textarea>
+        </div>
+      `;
+      document.getElementById("lista-experiencias").appendChild(div);
+    }
+
+    // ---- Certificacao ----
+    function adicionarCertificacao() {
+      const id = contCert++;
+      const div = document.createElement("div");
+      div.className = "entrada";
+      div.id = `cert-${id}`;
+      div.innerHTML = `
+        <div class="entrada-header">
+          <strong>Certificacao ${id + 1}</strong>
+          <button class="btn-remover" onclick="remover('cert-${id}')">Remover</button>
+        </div>
+        <div class="grid-2">
+          <div class="campo">
+            <label>Nome da certificacao</label>
+            <input type="text" data-cert="${id}" data-campo="nome" placeholder="Ex: Microsoft Certified: Power BI (PL-300)" />
+          </div>
+          <div class="campo">
+            <label>Data</label>
+            <input type="text" data-cert="${id}" data-campo="data" placeholder="Ex: Abr. 2024" />
+          </div>
+        </div>
+        <div class="campo">
+          <label>Competencias</label>
+          <input type="text" data-cert="${id}" data-campo="competencias"
+            placeholder="Ex: Power BI, Linguagem M, Visualizacao de dados" />
+        </div>
+      `;
+      document.getElementById("lista-certificacoes").appendChild(div);
+    }
+
+    function remover(id) {
+      const el = document.getElementById(id);
+      if (el) el.remove();
+    }
+
+    // ---- Mascara de telefone ----
+    document.getElementById("telefone").addEventListener("input", function (e) {
+      let v = e.target.value.replace(/\D/g, "").slice(0, 11);
+      if (v.length > 10) {
+        v = `(${v.slice(0,2)}) ${v.slice(2,7)}-${v.slice(7)}`;
+      } else if (v.length > 6) {
+        v = `(${v.slice(0,2)}) ${v.slice(2,6)}-${v.slice(6)}`;
+      } else if (v.length > 2) {
+        v = `(${v.slice(0,2)}) ${v.slice(2)}`;
+      } else if (v.length > 0) {
+        v = `(${v}`;
+      }
+      e.target.value = v;
+    });
+
+    // ---- Coleta de dados ----
+    function coletarDados() {
+      const experiencias = [];
+      document.querySelectorAll("[data-exp]").forEach(el => {
+        const id = el.dataset.exp;
+        if (!experiencias[id]) experiencias[id] = {};
+        experiencias[id][el.dataset.campo] = el.value;
+      });
+
+      const formacoes = [];
+      document.querySelectorAll("[data-form]").forEach(el => {
+        const id = el.dataset.form;
+        if (!formacoes[id]) formacoes[id] = {};
+        formacoes[id][el.dataset.campo] = el.value;
+      });
+
+      const certificacoes = [];
+      document.querySelectorAll("[data-cert]").forEach(el => {
+        const id = el.dataset.cert;
+        if (!certificacoes[id]) certificacoes[id] = {};
+        certificacoes[id][el.dataset.campo] = el.value;
+      });
+
+      return {
+        nome: document.getElementById("nome").value,
+        email: document.getElementById("email").value,
+        telefone: document.getElementById("telefone").value,
+        cidade: document.getElementById("cidade").value,
+        linkedin: document.getElementById("linkedin").value,
+        objetivo: document.getElementById("objetivo").value,
+        habilidades: document.getElementById("habilidades").value,
+        experiencias: Object.values(experiencias),
+        formacoes: Object.values(formacoes),
+        certificacoes: Object.values(certificacoes),
+      };
+    }
+
+    // ---- Gerar PDF ----
+    async function gerarPDF() {
+      const dados = coletarDados();
+      if (!dados.nome.trim() || !dados.email.trim()) {
+        alert("Preencha pelo menos o nome e o e-mail.");
+        return;
+      }
+
+      const statusEl = document.getElementById("msg-global");
+      statusEl.textContent = "Organizando descricoes com IA e gerando PDF...";
+      statusEl.className = "msg carregando";
+
+      try {
+        const resp = await fetch("/gerar-pdf", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(dados),
+        });
+        if (!resp.ok) throw new Error("Erro ao gerar PDF.");
+        const blob = await resp.blob();
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = `curriculo_${dados.nome.replace(/ /g, "_")}.pdf`;
+        a.click();
+        URL.revokeObjectURL(url);
+        statusEl.textContent = "PDF gerado e baixado com sucesso!";
+        statusEl.className = "msg sucesso";
+      } catch (e) {
+        statusEl.textContent = "Erro: " + e.message;
+        statusEl.className = "msg erro";
+      }
+    }
+
+    window.onload = () => {
+      adicionarFormacao();
+      adicionarExperiencia();
+    };
+  </script>
+</body>
+</html>
